@@ -1,85 +1,41 @@
-name: Build Desktop Apps
+name: Build Mac DMG
 
 on:
   workflow_dispatch:
 
 jobs:
-  build-mac:
+  build:
     runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - run: unzip -q Nio-Intelligence-Agent-Command-Centre-source.zip -d extracted
+      - name: Show files
+        run: ls -la
 
-      - run: npm ci
+      - name: Extract source
+        run: unzip -q source.zip -d extracted
+
+      - name: Install dependencies
+        run: npm ci
         working-directory: extracted
 
-      - run: npm ci
+      - name: Install server dependencies
+        run: npm ci
         working-directory: extracted/server
 
-      - run: npm run pack:mac
+      - name: Build Mac DMG
+        run: npm run pack:mac
         working-directory: extracted
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload DMG
+        uses: actions/upload-artifact@v4
         with:
           name: mac-dmg
           path: extracted/dist/*.dmg
-
-  build-windows:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - run: Expand-Archive -Path Nio-Intelligence-Agent-Command-Centre-source.zip -DestinationPath extracted
-        shell: powershell
-
-      - run: npm ci
-        working-directory: extracted
-
-      - run: npm ci
-        working-directory: extracted/server
-
-      - run: npm run pack:win
-        working-directory: extracted
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: windows-exe
-          path: |
-            extracted/dist/*.exe
-            extracted/dist/*.msi
-
-  build-linux:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - run: unzip -q Nio-Intelligence-Agent-Command-Centre-source.zip -d extracted
-
-      - run: npm ci
-        working-directory: extracted
-
-      - run: npm ci
-        working-directory: extracted/server
-
-      - run: npm run pack:linux
-        working-directory: extracted
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: linux-appimage
-          path: |
-            extracted/dist/*.AppImage
-            extracted/dist/*.deb
