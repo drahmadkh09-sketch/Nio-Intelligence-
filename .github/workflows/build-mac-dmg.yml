@@ -12,6 +12,7 @@ steps:
 - uses: actions/setup-node@v4
 with:
 node-version: '20'
+
 - run: unzip -q Nio-Intelligence-Agent-Command-Centre-source.zip -d extracted
 
 - run: npm ci
